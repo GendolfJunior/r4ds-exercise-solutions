@@ -2,7 +2,6 @@
 .Rproj.user
 .RData
 _bookdown_files/*
-my_working_solutions*.R
 
 # Don't ignore all _cache, _files folders because they are needed for output in the docs folder
 /*_cache/
