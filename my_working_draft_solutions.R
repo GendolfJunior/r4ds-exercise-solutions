@@ -1027,3 +1027,41 @@ mostcar <- not_cancelled %>%
 
   ggplot(cancelled_and_delays) +
     geom_point(aes(x = avg_arr_delay, y = cancelled_prop))
+
+
+  # 5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers?
+  # Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))
+
+worst_carriers <-  flights %>%
+    mutate(cancelled = (is.na(arr_delay) | is.na(dep_delay))) %>%
+    group_by(carrier) %>%
+    summarise(cancelled_count = sum(cancelled),
+              flights_total = n(),
+              proportion = cancelled_count/flights_total)
+
+worst_carriers <-  flights %>%
+  mutate(cancelled = (is.na(arr_delay) | is.na(dep_delay))) %>%
+  group_by(carrier, dest) %>%
+  summarise(cancelled_count = sum(cancelled),
+            flights_total = n())
+###
+worst_delay_carriers <- flights  %>%
+  select(carrier, dest, arr_delay)
+
+worst_delay_carriers <- mutate(worst_delay_carriers, delayed = (arr_delay > 0))
+
+worst_delay_carriers_sum <- worst_delay_carriers %>%
+  group_by(carrier, dest) %>%
+  summarise(delayed = sum(delayed, na.rm = TRUE),
+            flights_total = n())
+
+carrier_9e <- flights %>%
+  group_by(carrier, dest) %>%
+  summarise(total = n())
+
+carrier_9e_delayes <- filter(worst_delay_carriers, carrier == '9E', dest == 'ATL')
+
+flights %>%
+  group_by(carrier) %>%
+  summarise(arr_delay = mean(arr_delay, na.rm = TRUE)) %>%
+  arrange(desc(arr_delay))
