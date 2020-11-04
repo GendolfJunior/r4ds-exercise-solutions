@@ -1,5 +1,15 @@
-library(tidyverse)
-install.packages(c("nycflights13", "gapminder", "Lahman"))
+
+
+list.of.packages <-
+  c("nycflights13", "gapminder", "Lahman", "tidyverse")
+new.packages <-
+  list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
+if (length(new.packages)) {
+  install.packages(new.packages)
+  library(new.packages)
+}
+
+
 
 mpg
 
@@ -1065,3 +1075,33 @@ flights %>%
   group_by(carrier) %>%
   summarise(arr_delay = mean(arr_delay, na.rm = TRUE)) %>%
   arrange(desc(arr_delay))
+
+
+#### 5.7 Grouped mutates (and filters) ############
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if (!require("nycflights13")) {
+  install.packages("nycflights13")
+  library(nycflights13)
+}
+
+### Find the worst members of each group:
+flights_sml %>%
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+
+### Find all groups bigger than a threshold:
+popular_dests <- flights %>%
+  group_by(dest) %>%
+  filter(n() > 365)
+popular_dests
+
+### Standardise to compute per group metrics:
+popular_dests %>%
+  filter(arr_delay > 0) %>%
+  mutate(prop_delay = arr_delay / sum(arr_delay)) %>%
+  select(year:day, dest, arr_delay, prop_delay)
+
+
